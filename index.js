@@ -22,41 +22,175 @@ async function run() {
         // const orderCollection = database.collection('orders');
         // const reviewCollection = database.collection('reviews');
         // const userCollection = database.collection('users');
-        
+
 
         //GET Products API
-        app.get('/posts', async (req, res) => {
+        app.get('/allposts', async (req, res) => {
             const cursor = postCollection.find({});
             const posts = await cursor.toArray();
             res.send(posts);
         });
 
 
+        app.get('/posts', async (req, res) => {
+            const email = req.query.email
+            const query = { email: email }
+            const cursor = postCollection.find(query);
+            const posts = await cursor.toArray();
+            res.send(posts);
+            
+        })
+        app.get('/techposts', async (req, res) => {
+            const tech = req.query.category
+            const query = { category: tech }
+            const cursor = postCollection.find(query);
+            const posts = await cursor.toArray();
+            res.send(posts);
+            
+        })
+        app.get('/musicposts', async (req, res) => {
+            const music = req.query.category
+            const query = { category: music }
+            const cursor = postCollection.find(query);
+            const posts = await cursor.toArray();
+            res.send(posts);
+            
+        })
+        app.get('/moviesposts', async (req, res) => {
+            const movies = req.query.category
+            const query = { category: movies }
+            const cursor = postCollection.find(query);
+            const posts = await cursor.toArray();
+            res.send(posts);
+            
+        })
+        app.get('/sportsposts', async (req, res) => {
+            const sports = req.query.category
+            const query = { category: sports }
+            const cursor = postCollection.find(query);
+            const posts = await cursor.toArray();
+            res.send(posts);
+            
+        })
 
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
+        })
 
         // POST API
+        app.post('/posts', async (req, res) => {
+            const post = req.body;
+            const result = await postCollection.insertOne(post);
+            res.json(result);
+          
+        })
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            res.json(result);
+          
+        })
+
+       
 
 
         //PUT API
 
+        app.put('/users', async (req, res) => {
+            const user = req.body;
+            const filter = { email: user.email };
+            const options = { upsert: true };
+            const updateDoc = { $set: user };
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.json(result);
+        });
+        app.put('/updateposts/:Id', async (req, res) => {
+            const id = req.params.Id;
+            const update = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = { $set: {
+                title:update.title,
+                image: update.image,
+                post: update.post
+            } };
+            const result = await postCollection.updateOne(filter, updateDoc, options);
+            res.json(result);
+
+        });
+
+
+        // app.put("/updateToys/:id", async (req, res) => {
+        //     const id = req.params.id;
+        //     const update = req.body;
+        //     const filter = { _id: ObjectId(id) };
+        //     const options = { upsert: true };
+        //     const updateDoc = {
+        //       $set: {
+        //         name: update.name,
+        //         description: update.description,
+        //         ageBracket: update.ageBracket,
+        //         brand: update.brand,
+        //         price: update.price,
+        //         image: update.image,
+        //       },
+        //     };
+        //     const result = await toysCollections.updateOne(
+        //       filter,
+        //       updateDoc,
+        //       options
+        //     );
+        //     res.send(result);
+        //   });
+        // app.put('/users/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const updatedUser = req.body;
+        //     const filter = { _id: ObjectId(id) };
+        //     const options = { upsert: true };
+        //     const updateDoc = {
+        //         $set: {
+        //             name: updatedUser.name,
+        //             email: updatedUser.email
+        //         },
+        //     };
+        //     const result = await usersCollection.updateOne(filter, updateDoc, options)
+        //     console.log('updating', id)
+        //     res.json(result)
+        // })
+
+
 
         // DELETE API
-       
 
-       
+        app.delete('/allposts/:id', async (req,res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await postCollection.deleteOne(query);
+            console.log('deleting user with id', result);
+            res.json(result);
+        })
+
 
     }
 
-        finally {
-            // await client.close();
-        }
+    finally {
+        // await client.close();
     }
-    run().catch(console.dir);
+}
+run().catch(console.dir);
 
 app.get('/', (req, res) => {
-  res.send('RS Blog server ready to Start')
+    res.send('RS Blog server ready to Start')
 })
 
 app.listen(port, () => {
-  console.log(`Server is running`,port)
+    console.log(`Server is running`, port)
 })
