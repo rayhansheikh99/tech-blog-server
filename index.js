@@ -19,9 +19,6 @@ async function run() {
         await client.connect();
         const database = client.db('RS-Blog');
         const postCollection = database.collection('posts');
-        // const orderCollection = database.collection('orders');
-        // const reviewCollection = database.collection('reviews');
-        // const userCollection = database.collection('users');
 
 
         //GET Products API
@@ -73,17 +70,6 @@ async function run() {
             
         })
 
-        app.get('/users/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { email: email };
-            const user = await userCollection.findOne(query);
-            let isAdmin = false;
-            if (user?.role === 'admin') {
-                isAdmin = true;
-            }
-            res.json({ admin: isAdmin });
-        })
-
         // POST API
         app.post('/posts', async (req, res) => {
             const post = req.body;
@@ -120,52 +106,13 @@ async function run() {
             const updateDoc = { $set: {
                 title:update.title,
                 image: update.image,
-                post: update.post
+                post: update.post,
+                category: update.category
             } };
             const result = await postCollection.updateOne(filter, updateDoc, options);
             res.json(result);
 
         });
-
-
-        // app.put("/updateToys/:id", async (req, res) => {
-        //     const id = req.params.id;
-        //     const update = req.body;
-        //     const filter = { _id: ObjectId(id) };
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //       $set: {
-        //         name: update.name,
-        //         description: update.description,
-        //         ageBracket: update.ageBracket,
-        //         brand: update.brand,
-        //         price: update.price,
-        //         image: update.image,
-        //       },
-        //     };
-        //     const result = await toysCollections.updateOne(
-        //       filter,
-        //       updateDoc,
-        //       options
-        //     );
-        //     res.send(result);
-        //   });
-        // app.put('/users/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const updatedUser = req.body;
-        //     const filter = { _id: ObjectId(id) };
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //         $set: {
-        //             name: updatedUser.name,
-        //             email: updatedUser.email
-        //         },
-        //     };
-        //     const result = await usersCollection.updateOne(filter, updateDoc, options)
-        //     console.log('updating', id)
-        //     res.json(result)
-        // })
-
 
 
         // DELETE API
