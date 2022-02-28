@@ -19,6 +19,7 @@ async function run() {
         await client.connect();
         const database = client.db('RS-Blog');
         const postCollection = database.collection('posts');
+        const userCollection = database.collection('users');
 
 
         //GET Products API
@@ -70,6 +71,18 @@ async function run() {
             
         })
 
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            let isAdmin = false;
+            if (user?.role === 'admin') {
+                isAdmin = true;
+            }
+            res.json({ admin: isAdmin });
+        })
+
+
         // POST API
         app.post('/posts', async (req, res) => {
             const post = req.body;
@@ -98,6 +111,16 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             res.json(result);
         });
+
+        app.put('/users/admin', async (req, res) => {
+            const user = req.body
+            console.log('put',user)
+            const filter = {email: user.email}
+            const updateDoc = {$set: {role: 'admin'}}
+            const result = await userCollection.updateOne(filter,updateDoc)
+            res.json(result)
+          })
+
         app.put('/updateposts/:Id', async (req, res) => {
             const id = req.params.Id;
             const update = req.body;
